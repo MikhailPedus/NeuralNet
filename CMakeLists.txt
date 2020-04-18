@@ -12,7 +12,25 @@ project(hello)
 
 find_package(Threads)
 find_package(OpenCV REQUIRED)
-find_package(GTest REQUIRED)
+
+add_library(core 
+	src/core/layer.cpp 
+	src/core/tensor.cpp 
+	src/core/activation_func.cpp
+	src/core/layers/AddLayer.cpp)
+
+target_include_directories(core
+    PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
 
 add_executable(hello src/main.cpp)
-target_link_libraries(hello ${OpenCV_LIBS})
+
+target_include_directories(hello
+    PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
+target_link_libraries(hello core ${OpenCV_LIBS})
+
+#tests
+add_subdirectory(tests)
