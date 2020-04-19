@@ -22,19 +22,20 @@ enum class TensorOrder {
   UNDEF
 };
 
-enum class TensorPrecision {
+enum class TensorElementType {
   UINT8,
   FP32,
   UINT64,
+  NEURON,
   UNDEF
 };
 
-size_t getPrecisionSize(const TensorPrecision& precision);
+size_t getPrecisionSize(const TensorElementType& element_type);
 
 struct Tensor {
   Tensor(const TensorShape& shape,
          const TensorOrder& order,
-         const TensorPrecision& precision);
+         const TensorElementType& element_type);
   ~Tensor();
   bool allocate();
 
@@ -45,7 +46,7 @@ struct Tensor {
 
   TensorShape _shape;
   TensorOrder _order;
-  TensorPrecision _precision;
+  TensorElementType _element_type;
   void* _data;
 };
 

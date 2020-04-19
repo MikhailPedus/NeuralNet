@@ -1,23 +1,31 @@
 #ifndef ACTIVATION_FUNC_HPP
 #define ACTIVATION_FUNC_HPP
 
+#include <vector>
+#include <ostream>
+
 namespace core {
 
-template <typename ParentNeuronType, typename Precision>
-class activationFunc {
- public:
-  activationFunc(ParentNeuronType* parent);
-  virtual ~activationFunc() = default;
-  virtual Precision activate() = 0;
+enum class ActivationFunctType {
+  Sigmoid,
+  Undef
 };
 
-template <typename ParentNeuronType, typename Precision>
-class activationFuncImpl : public activationFunc<ParentNeuronType, Precision> {
- public:
-  activationFuncImpl(ParentNeuronType* parent);
+std::ostream& operator<<(std::ostream& stream, const ActivationFunctType& act_func_type);
 
-  virtual ~activationFuncImpl() = default;
-  virtual Precision activate();
+class activationFunc {
+ public:
+  activationFunc();
+  virtual ~activationFunc() = default;
+  virtual float activate(const std::vector<float>& inputs) = 0;
+};
+
+class activationSigmoid : public activationFunc {
+ public:
+  activationSigmoid();
+
+  virtual ~activationSigmoid() = default;
+  virtual float activate(const std::vector<float>& inputs);
 };
 
 }  // namespace core

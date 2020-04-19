@@ -11,17 +11,21 @@ endif ()
 project(hello)
 
 find_package(Threads)
-find_package(OpenCV REQUIRED)
+#find_package(OpenCV REQUIRED)
 
 add_library(core 
-	src/core/layer.cpp 
-	src/core/tensor.cpp 
+	src/core/tensor.cpp
+	src/core/neuron.cpp
+	src/core/layer.cpp
 	src/core/activation_func.cpp
-	src/core/layers/AddLayer.cpp)
+	src/core/layers/AddLayer.cpp
+	src/core/layers/FullyConnected.cpp)
+
+set(CORE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_include_directories(core
     PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    ${CORE_INCLUDE_DIRS}
     )
 
 add_executable(hello src/main.cpp)
@@ -30,7 +34,10 @@ target_include_directories(hello
     PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     )
-target_link_libraries(hello core ${OpenCV_LIBS})
+target_link_libraries(hello 
+    core 
+    #${OpenCV_LIBS}
+	)
 
 #tests
 add_subdirectory(tests)

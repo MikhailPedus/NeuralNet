@@ -2,7 +2,8 @@
 #define LAYER_HPP
 
 #include "tensor.hpp"
-#include <vector>
+#include <map>
+#include <string>
 
 #include <memory>
 
@@ -10,6 +11,7 @@ namespace core {
 
   struct Port {
     Port();
+    Port(const TensorShape& _shape, std::shared_ptr<Tensor> _tensor);
     TensorShape _shape;
     std::shared_ptr<Tensor> _tensor;
   };
@@ -17,18 +19,18 @@ namespace core {
   class Layer {
    public:
     Layer();
-    Layer(const std::vector<Port>& inputs, const std::vector<Port>& outputs);
-    void AddInputPort(const Port& port);
-    void AddOutputPort(const Port& port);
+    bool AddInputPort(const Port& port, const std::string& lable);
+    bool AddOutputPort(const Port& port, const std::string& lable);
 
-    bool ConnectInputPort(size_t port_id, std::shared_ptr<Tensor> tensor);
-    bool ConnectOutputPort(size_t port_id, std::shared_ptr<Tensor> tensor);
+    bool ConnectInputPort(const std::string& port_lable, std::shared_ptr<Tensor> tensor);
+    bool ConnectOutputPort(const std::string& port_lable, std::shared_ptr<Tensor> tensor);
 
+    virtual bool checkRequirements();
     virtual bool execute() = 0;
 
    protected:
-    std::vector<Port> _inputs;
-    std::vector<Port> _outputs;
+    std::map<std::string, Port> _inputs;
+    std::map<std::string, Port> _outputs;
   };
 
 }  // namespace core

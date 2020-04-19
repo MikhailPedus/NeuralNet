@@ -1,65 +1,33 @@
 #include "core/layers/AddLayer.hpp"
 
 #include <iostream>
+#include <vector>
 
 namespace core {
 
   LayerAdd::LayerAdd() : Layer() {}
 
-  LayerAdd::LayerAdd(const std::vector<Port>& inputs,
-                     const std::vector<Port>& outputs)
-      : Layer(inputs, outputs) {}
-
   bool LayerAdd::execute() {
-    if (_inputs.size() < 2) {
-      std::cout << "required at least 2 inputs" << std::endl;
+    if (!checkRequirements())
       return false;
-    }
-    if (_outputs.size() != 1) {
-      std::cout << "required one output" << std::endl;
+
+
+    if (_inputs.begin()->second._tensor->_element_type != TensorElementType::FP32) {
+      std::cout
+          << "Only FP32 element type is supported in eltwise Add layer"
+          << std::endl;
       return false;
-    }
-    for (size_t i = 1; i < _inputs.size(); ++i) {
-      if (_inputs[0]._shape != _inputs[i]._shape) {
-        std::cout << "All inputs must have same shapes" << std::endl;
-        return false;
-      }
-    }
-    if (_outputs[0]._shape != _inputs[0]._shape) {
-      std::cout << "Output must have same shape with inputs shapes"
-                << std::endl;
-      return false;
-    }
-    for (size_t i = 0; i < _inputs.size(); ++i) {
-      if (!_inputs[i]._tensor) {
-        std::cout << "Tensor for input " << i << " does not added" << std::endl;
-        return 0;
-      }
-      if (!_inputs[i]._tensor->_data) {
-        std::cout << "Memory for input tensor " << i << " does not alocated"
-                  << std::endl;
-        return 0;
-      }
-    }
-    for (size_t i = 0; i < _outputs.size(); ++i) {
-      if (!_outputs[i]._tensor) {
-        std::cout << "Tensor for output " << i << " does not added" << std::endl;
-        return 0;
-      }
-      if (!_outputs[i]._tensor->_data) {
-        std::cout << "Memory for output tensor " << i << " does not alocated"
-                  << std::endl;
-        return 0;
-      }
     }
 
-    std::vector<float*> input_ptrs(_inputs.size(), nullptr);
-    for (size_t i = 0; i < _inputs.size(); ++i) {
-      input_ptrs[i] = _inputs[i]._tensor->getDataPtr<float>();
-    }
-    float* output_ptr = _outputs[0]._tensor->getDataPtr<float>();
+    std::vector<float*> input_ptrs;
+    input_ptrs.reserve(_inputs.size());
 
-    for (size_t i = 0; i < _inputs[0]._shape.getSize(); ++i) {
+    for (auto iter = _inputs.begin(); iter != _inputs.end(); ++iter) {
+      input_ptrs.emplace_back(iter->second._tensor->getDataPtr<float>());
+    }
+    float* output_ptr = _outputs.begin()->second._tensor->getDataPtr<float>();
+
+    for (size_t i = 0; i < _inputs.begin()->second._shape.getSize(); ++i) {
       *output_ptr = 0;
       for (size_t j = 0; j < input_ptrs.size(); ++j) {
         *output_ptr += *input_ptrs[j];

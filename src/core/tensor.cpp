@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "core/neuron.hpp"
+
 namespace core {
 
   TensorShape::TensorShape() : _width(0), _height(0), _channels(0) {}
@@ -28,13 +30,15 @@ namespace core {
   bool operator!=(const TensorShape& sh_1, const TensorShape& sh_2) {
     return !(sh_1 == sh_2);
   }
-  size_t getPrecisionSize(const TensorPrecision& precision) {
+  size_t getElementTypeSize(const TensorElementType& precision) {
     switch (precision) { 
-    case TensorPrecision::UINT8:
+    case TensorElementType::UINT8:
       return 1;
-    case TensorPrecision::FP32:
+    case TensorElementType::FP32:
       return 4;
-    case TensorPrecision::UINT64:
+    case TensorElementType::UINT64:
+      return 8;
+    case TensorElementType::NEURON:
       return 8;
     default:
       std::cout << "Try to get size for unsupported precision" << std::endl;
@@ -42,8 +46,8 @@ namespace core {
     return 0;
   }
 
-  Tensor::Tensor(const TensorShape& shape, const TensorOrder& order, const TensorPrecision& precision) : 
-    _shape(shape), _order(order), _precision(precision), _data(nullptr) {
+  Tensor::Tensor(const TensorShape& shape, const TensorOrder& order, const TensorElementType& element_type) : 
+    _shape(shape), _order(order), _element_type(element_type), _data(nullptr) {
 
   }
   Tensor::~Tensor() {
@@ -53,7 +57,6 @@ namespace core {
   }
 
   bool Tensor::allocate() {
-    
     if (_shape.isEmpty()) {
       std::cout << "Try to allocate memory for empty shape" << std::endl;
       return false;
@@ -62,6 +65,7 @@ namespace core {
       std::cout << "Already initialized" << std::endl;
       return false;
     }
-    _data = malloc(_shape.getSize() * getPrecisionSize(_precision));
+    _data = malloc(_shape.getSize() * getElementTypeSize(_element_type));
+    return _data != nullptr;
   }
 } // namespace core
